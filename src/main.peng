@@ -8,7 +8,7 @@ type Vec2 {
     var x
     var y
 
-    func __self(x, y) {
+    func __constructor(x, y) {
         return Vec2:{
             x = x,
             y = y
@@ -103,7 +103,7 @@ type Vec3 {
     var y
     var z
 
-    func __self(x, y, z) {
+    func __constructor(x, y, z) {
         return Vec3:{
             x = x,
             y = y,
@@ -219,7 +219,7 @@ type Vec4 {
     var z
     var w
 
-    func __self(x, y, z, w) {
+    func __constructor(x, y, z, w) {
         return Vec4:{
             x = x,
             y = y,
@@ -338,7 +338,7 @@ type Matrix {
     var __type = Matrix
     var __values = nil
 
-    func __self(values: [any]) {
+    func __constructor(values: [any]) {
         return Matrix:{
             __values = values
         }
