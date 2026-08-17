@@ -1,0 +1,533 @@
+import("io") as io
+import("linear") as linear
+
+
+func print_vectors(title, vectors) {
+    io:println(title)
+
+    for (var i = 0; i < vectors.len(); i = i + 1) {
+        io:println("  ", i, ":", vectors[i])
+    }
+}
+
+func print_subspace(title, subspace) {
+    io:println(title, subspace)
+    print_vectors("basis:", subspace.basis())
+}
+
+
+func main() {
+    io:println("=== PABBLE LINEAR ===")
+
+
+    io:println("\n=== Basic specialized vectors ===")
+
+    var v2 = linear:Vec2(3, 4)
+    var v3a = linear:Vec3(1, 2, 3)
+    var v3b = linear:Vec3(4, 5, 6)
+    var v4 = linear:Vec4(1, 2, 3, 4)
+
+    io:println("Vec2:", v2)
+    io:println("Vec2 normalized:", v2.normalized())
+    io:println("Vec2 / 2:", v2 / 2)
+
+    io:println("Vec3 a:", v3a)
+    io:println("Vec3 b:", v3b)
+    io:println("Vec3 dot:", v3a.dot(v3b))
+    io:println("Vec3 cross:", v3a.cross(v3b))
+
+    io:println("Vec4:", v4)
+    io:println("Vec4 norm:", v4.length())
+
+
+    io:println("\n========================================")
+    io:println("UNIT 1 - VECTOR SPACES")
+    io:println("========================================")
+
+
+    io:println("\n=== General Vector ===")
+
+    var a = linear:Vector([1, 2, 3])
+    var b = linear:Vector([4, 5, 6])
+
+    io:println("a:", a)
+    io:println("b:", b)
+    io:println("a + b:", a + b)
+    io:println("a - b:", a - b)
+    io:println("2a:", a * 2)
+    io:println("a / 2:", a / 2)
+    io:println("dot(a, b):", a.dot(b))
+    io:println("norm(a):", a.norm())
+    io:println("distance(a, b):", a.distance(b))
+
+
+    io:println("\n=== Linear combination ===")
+
+    var e1 = linear:Vector([1, 0, 0])
+    var e2 = linear:Vector([0, 1, 0])
+    var e3 = linear:Vector([0, 0, 1])
+
+    var combination = linear:linear_combination(
+        [e1, e2, e3],
+        [2, 3, 4]
+    )
+
+    io:println("2e1 + 3e2 + 4e3:", combination)
+
+
+    io:println("\n=== Linear dependence and independence ===")
+
+    var dependent = linear:Vector([1, 1, 0])
+
+    io:println(
+        "{e1, e2, e3} independent:",
+        linear:is_linearly_independent([e1, e2, e3])
+    )
+
+    io:println(
+        "{e1, e2, e1+e2} dependent:",
+        linear:is_linearly_dependent([e1, e2, dependent])
+    )
+
+
+    io:println("\n=== Span / generated subspace ===")
+
+    var xy = linear:Subspace([
+        e1,
+        e2,
+        dependent
+    ])
+
+    print_subspace("XY subspace:", xy)
+
+    io:println(
+        "contains Vector(3, -2, 0):",
+        xy.contains(linear:Vector([3, -2, 0]))
+    )
+
+    io:println(
+        "contains Vector(0, 0, 1):",
+        xy.contains(e3)
+    )
+
+    var x_axis = linear:Subspace([e1])
+    io:println("span(e1) is subspace of XY:", x_axis.is_subspace_of(xy))
+
+
+    io:println("\n=== Basis and dimension ===")
+
+    var generating_set = [
+        e1,
+        e2,
+        dependent,
+        e3
+    ]
+
+    var generated_basis = linear:basis(generating_set)
+
+    print_vectors("basis extracted from generating set:", generated_basis)
+    io:println("dimension:", linear:dimension(generating_set))
+
+
+    io:println("\n=== Coordinates ===")
+
+    var vector_coordinates = linear:Vector([5, 6, 7])
+    var standard_basis = [e1, e2, e3]
+
+    io:println("vector:", vector_coordinates)
+    io:println(
+        "coordinates in standard basis:",
+        linear:coordinates(vector_coordinates, standard_basis)
+    )
+
+    var b1 = linear:Vector([1, 1])
+    var b2 = linear:Vector([1, -1])
+    var c1 = linear:Vector([1, 0])
+    var c2 = linear:Vector([0, 1])
+
+    io:println("change-of-basis matrix B -> standard:")
+    io:println(
+        linear:change_basis_matrix(
+            [b1, b2],
+            [c1, c2]
+        )
+    )
+
+
+    io:println("\n=== Matrix elimination, rank and null space ===")
+
+    var elimination = linear:Matrix([
+        [1, 2, 3],
+        [2, 4, 6],
+        [1, 1, 1]
+    ])
+
+    io:println("matrix:")
+    io:println(elimination)
+
+    io:println("REF:")
+    io:println(elimination.ref())
+
+    io:println("RREF:")
+    io:println(elimination.rref())
+
+    io:println("rank:", elimination.rank())
+    io:println("nullity:", elimination.nullity())
+
+    print_vectors(
+        "null-space basis:",
+        elimination.null_space()
+    )
+
+    print_vectors(
+        "column-space basis:",
+        elimination.column_space()
+    )
+
+
+    io:println("\n=== Linear system ===")
+
+    var system_matrix = linear:Matrix([
+        [2, 1],
+        [1, -1]
+    ])
+
+    var system_vector = linear:Vector([5, 1])
+
+    io:println("A:")
+    io:println(system_matrix)
+    io:println("b:", system_vector)
+    io:println("solution:", system_matrix.solve(system_vector))
+
+
+    io:println("\n=== Matrix fundamentals ===")
+
+    var m1 = linear:Matrix([
+        [1, 2],
+        [3, 4]
+    ])
+
+    var m2 = linear:Matrix([
+        [5, 6],
+        [7, 8]
+    ])
+
+    io:println("m1:")
+    io:println(m1)
+    io:println("m2:")
+    io:println(m2)
+
+    io:println("m1 + m2:")
+    io:println(m1 + m2)
+
+    io:println("m1 * m2:")
+    io:println(m1 * m2)
+
+    io:println("transpose(m1):")
+    io:println(m1.transpose())
+
+    io:println("det(m1):", m1.determinant())
+
+    io:println("inverse(m1):")
+    io:println(m1.inverse())
+
+    io:println("m1 * inverse(m1):")
+    io:println(m1 * m1.inverse())
+
+    io:println("identity(3):")
+    io:println(linear:matrix_identity(3))
+
+    io:println("zeros(2, 3):")
+    io:println(linear:matrix_zeros(2, 3))
+
+
+    io:println("\n========================================")
+    io:println("UNIT 2 - LINEAR TRANSFORMATIONS, EIGENVALUES AND EIGENVECTORS")
+    io:println("========================================")
+
+
+    io:println("\n=== Linear transformation ===")
+
+    var transformation_matrix = linear:Matrix([
+        [2, 0],
+        [0, 3]
+    ])
+
+    var T = linear:LinearTransformation(transformation_matrix)
+    var tv = linear:Vector([4, 5])
+
+    io:println("matrix of T:")
+    io:println(T.matrix())
+
+    io:println("v:", tv)
+    io:println("T(v):", T(tv))
+
+    io:println("domain dimension:", T.domain_dimension())
+    io:println("codomain dimension:", T.codomain_dimension())
+    io:println("rank(T):", T.rank())
+    io:println("nullity(T):", T.nullity())
+    io:println("injective:", T.is_injective())
+    io:println("surjective:", T.is_surjective())
+    io:println("isomorphism:", T.is_isomorphism())
+    io:println("is linear operator:", T.is_operator())
+    io:println("operator eigenvalues:", T.eigenvalues())
+    io:println("operator diagonalizable:", T.is_diagonalizable())
+
+    print_subspace("kernel(T):", T.kernel())
+    print_subspace("image(T):", T.image())
+
+
+    io:println("\n=== Transformation from images of a basis ===")
+
+    var constructed_T = linear:linear_transformation_from_images(
+        [c1, c2],
+        [
+            linear:Vector([2, 0]),
+            linear:Vector([0, 3])
+        ]
+    )
+
+    io:println("constructed matrix:")
+    io:println(constructed_T.matrix())
+    io:println("constructed T(Vector(2, 2)):", constructed_T(linear:Vector([2, 2])))
+
+
+    io:println("\n=== Composition of linear transformations ===")
+
+    var S = linear:LinearTransformation(
+        linear:Matrix([
+            [1, 1],
+            [0, 1]
+        ])
+    )
+
+    var composition = T.compose(S)
+    var composition_vector = linear:Vector([1, 2])
+
+    io:println("S(v):", S(composition_vector))
+    io:println("T(S(v)):", T(S(composition_vector)))
+    io:println("(T compose S)(v):", composition(composition_vector))
+
+
+    io:println("\n=== Matrix representation in different bases ===")
+
+    io:println("representation of T using B in domain and standard in codomain:")
+    io:println(
+        T.representation(
+            [b1, b2],
+            [c1, c2]
+        )
+    )
+
+
+    io:println("\n=== Characteristic polynomial ===")
+
+    var eigen_matrix = linear:Matrix([
+        [2, 0],
+        [0, 3]
+    ])
+
+    var characteristic = eigen_matrix.characteristic_polynomial()
+
+    io:println("A:")
+    io:println(eigen_matrix)
+    io:println("characteristic polynomial coefficients:", characteristic)
+    io:println("p(2):", characteristic.evaluate(2))
+    io:println("p(3):", characteristic.evaluate(3))
+
+
+    io:println("\n=== Eigenvalues and eigenspaces ===")
+
+    var eigenvalues = eigen_matrix.eigenvalues()
+
+    io:println("eigenvalues:", eigenvalues)
+
+    print_subspace(
+        "eigenspace lambda=2:",
+        eigen_matrix.eigenspace(2)
+    )
+
+    print_subspace(
+        "eigenspace lambda=3:",
+        eigen_matrix.eigenspace(3)
+    )
+
+    io:println(
+        "algebraic multiplicity lambda=2:",
+        eigen_matrix.algebraic_multiplicity(2)
+    )
+
+    io:println(
+        "geometric multiplicity lambda=2:",
+        eigen_matrix.geometric_multiplicity(2)
+    )
+
+    print_vectors(
+        "eigenvector basis:",
+        eigen_matrix.eigenvectors()
+    )
+
+
+    io:println("\n=== Algebraic vs geometric multiplicity ===")
+
+    var jordan = linear:Matrix([
+        [2, 1],
+        [0, 2]
+    ])
+
+    io:println("Jordan matrix:")
+    io:println(jordan)
+    io:println("eigenvalues:", jordan.eigenvalues())
+    io:println("algebraic multiplicity of 2:", jordan.algebraic_multiplicity(2))
+    io:println("geometric multiplicity of 2:", jordan.geometric_multiplicity(2))
+    io:println("diagonalizable:", jordan.is_diagonalizable())
+
+
+    io:println("\n=== QR eigenvalue approximation for 3x3 ===")
+
+    var eigen3 = linear:Matrix([
+        [1, 0, 0],
+        [0, 2, 0],
+        [0, 0, 4]
+    ])
+
+    io:println("matrix:")
+    io:println(eigen3)
+    io:println("characteristic polynomial:", eigen3.characteristic_polynomial())
+    io:println("eigenvalues:", eigen3.eigenvalues())
+
+
+    io:println("\n========================================")
+    io:println("UNIT 3 - DIAGONALIZATION AND INNER PRODUCT")
+    io:println("========================================")
+
+
+    io:println("\n=== Diagonalization ===")
+
+    var diagonalizable = linear:Matrix([
+        [4, 1],
+        [0, 2]
+    ])
+
+    io:println("A:")
+    io:println(diagonalizable)
+    io:println("is diagonalizable:", diagonalizable.is_diagonalizable())
+
+    var diagonalization = diagonalizable.diagonalize()
+
+    io:println("P:")
+    io:println(diagonalization.P)
+
+    io:println("D:")
+    io:println(diagonalization.D)
+
+    io:println("P inverse:")
+    io:println(diagonalization.P_inverse)
+
+    io:println("P * D * P inverse:")
+    io:println(diagonalization.reconstruct())
+
+
+    io:println("\n=== Inner product, norm and distance ===")
+
+    var ip_a = linear:Vector([1, 2, 3])
+    var ip_b = linear:Vector([4, -2, 0])
+
+    io:println("a:", ip_a)
+    io:println("b:", ip_b)
+    io:println("<a,b>:", linear:inner_product(ip_a, ip_b))
+    io:println("<b,a>:", linear:inner_product(ip_b, ip_a))
+    io:println("norm(a):", ip_a.norm())
+    io:println("distance(a,b):", ip_a.distance(ip_b))
+    io:println("a and b orthogonal:", linear:are_orthogonal(ip_a, ip_b))
+
+
+    io:println("\n=== Orthogonal projection ===")
+
+    var projection_vector = linear:Vector([2, 3, 4])
+    var projection_axis = linear:Vector([1, 0, 0])
+
+    io:println("v:", projection_vector)
+    io:println("u:", projection_axis)
+    io:println(
+        "projection of v onto u:",
+        linear:projection(projection_vector, projection_axis)
+    )
+
+
+    io:println("\n=== Orthogonal and orthonormal sets ===")
+
+    io:println(
+        "standard basis orthogonal:",
+        linear:is_orthogonal_set([e1, e2, e3])
+    )
+
+    io:println(
+        "standard basis orthonormal:",
+        linear:is_orthonormal_set([e1, e2, e3])
+    )
+
+
+    io:println("\n=== Gram-Schmidt ===")
+
+    var gs1 = linear:Vector([1, 1, 0])
+    var gs2 = linear:Vector([1, 0, 1])
+
+    var orthonormal = linear:gram_schmidt([
+        gs1,
+        gs2
+    ])
+
+    print_vectors("orthonormal set:", orthonormal)
+    io:println(
+        "is orthonormal:",
+        linear:is_orthonormal_set(orthonormal)
+    )
+
+
+    io:println("\n=== Orthonormal basis ===")
+
+    var orthonormal_basis = linear:orthonormal_basis([
+        linear:Vector([1, 1, 0]),
+        linear:Vector([1, 0, 1]),
+        linear:Vector([0, 1, 1])
+    ])
+
+    print_vectors("orthonormal basis of R3:", orthonormal_basis)
+
+
+    io:println("\n=== Projection onto a subspace ===")
+
+    var projected = linear:projection_onto_subspace(
+        linear:Vector([2, 3, 4]),
+        [e1, e2]
+    )
+
+    io:println("projection onto span(e1,e2):", projected)
+
+
+    io:println("\n=== QR decomposition ===")
+
+    var qr_matrix = linear:Matrix([
+        [1, 0],
+        [1, 1],
+        [0, 1]
+    ])
+
+    var qr = qr_matrix.qr()
+
+    io:println("A:")
+    io:println(qr_matrix)
+
+    io:println("Q:")
+    io:println(qr.Q)
+
+    io:println("R:")
+    io:println(qr.R)
+
+    io:println("Q * R:")
+    io:println(qr.reconstruct())
+
+
+    io:println("\n=== Done ===")
+}
