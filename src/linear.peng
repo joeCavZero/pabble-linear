@@ -1,0 +1,2209 @@
+import("math") as math
+import("convert") as convert
+
+
+func scalar_abs(value) {
+    if value < 0 {
+        return -value
+    }
+
+    return value
+}
+
+func scalar_close(left, right, epsilon) {
+    return scalar_abs(
+        convert:to_f64(left) - convert:to_f64(right)
+    ) <= epsilon
+}
+
+func number_is_zero(value) {
+    return scalar_abs(convert:to_f64(value)) <= 0.0000000001
+}
+
+func number_is_zero_epsilon(value, epsilon) {
+    return scalar_abs(convert:to_f64(value)) <= epsilon
+}
+
+func numbers_unique(values, epsilon) {
+    var result = []
+
+    for (var i = 0; i < values.len(); i = i + 1) {
+        var exists = false
+
+        for (var j = 0; j < result.len(); j = j + 1) {
+            if scalar_close(values[i], result[j], epsilon) {
+                exists = true
+            }
+        }
+
+        if !exists {
+            result.push(values[i])
+        }
+    }
+
+    return result
+}
+
+
+type Vec2 {
+    var __type = Vec2
+
+    var x
+    var y
+
+    func __constructor(x, y) {
+        return Vec2:{
+            x = x,
+            y = y
+        }
+    }
+
+    func __add(self, other) {
+        return Vec2(
+            self.x + other.x,
+            self.y + other.y
+        )
+    }
+
+    func __sub(self, other) {
+        return Vec2(
+            self.x - other.x,
+            self.y - other.y
+        )
+    }
+
+    func __mul(self, scalar) {
+        return Vec2(
+            self.x * scalar,
+            self.y * scalar
+        )
+    }
+
+    func __div(self, scalar) {
+        var divisor = convert:to_f64(scalar)
+
+        if divisor == 0 {
+            return raise("Vec2 division error: division by zero.")
+        }
+
+        return Vec2(
+            convert:to_f64(self.x) / divisor,
+            convert:to_f64(self.y) / divisor
+        )
+    }
+
+    func __neg(self) {
+        return Vec2(
+            -self.x,
+            -self.y
+        )
+    }
+
+    func __eq(self, other) {
+        return self.x == other.x &&
+               self.y == other.y
+    }
+
+    func __str(self) {
+        return "Vec2(" ..
+            convert:to_string(self.x) .. ", " ..
+            convert:to_string(self.y) .. ")"
+    }
+
+    func dot(self, other) {
+        return self.x * other.x +
+               self.y * other.y
+    }
+
+    func length_squared(self) {
+        return self.dot(self)
+    }
+
+    func length(self) {
+        return math:sqrt(self.length_squared())
+    }
+
+    func normalized(self) {
+        var length = convert:to_f64(self.length())
+
+        if length == 0 {
+            return raise("Vec2 normalization error: zero vector cannot be normalized.")
+        }
+
+        return self / length
+    }
+
+    func distance_squared(self, other) {
+        var dx = other.x - self.x
+        var dy = other.y - self.y
+
+        return dx * dx + dy * dy
+    }
+
+    func distance(self, other) {
+        return math:sqrt(self.distance_squared(other))
+    }
+}
+
+
+type Vec3 {
+    var __type = Vec3
+
+    var x
+    var y
+    var z
+
+    func __constructor(x, y, z) {
+        return Vec3:{
+            x = x,
+            y = y,
+            z = z
+        }
+    }
+
+    func __add(self, other) {
+        return Vec3(
+            self.x + other.x,
+            self.y + other.y,
+            self.z + other.z
+        )
+    }
+
+    func __sub(self, other) {
+        return Vec3(
+            self.x - other.x,
+            self.y - other.y,
+            self.z - other.z
+        )
+    }
+
+    func __mul(self, scalar) {
+        return Vec3(
+            self.x * scalar,
+            self.y * scalar,
+            self.z * scalar
+        )
+    }
+
+    func __div(self, scalar) {
+        var divisor = convert:to_f64(scalar)
+
+        if divisor == 0 {
+            return raise("Vec3 division error: division by zero.")
+        }
+
+        return Vec3(
+            convert:to_f64(self.x) / divisor,
+            convert:to_f64(self.y) / divisor,
+            convert:to_f64(self.z) / divisor
+        )
+    }
+
+    func __neg(self) {
+        return Vec3(
+            -self.x,
+            -self.y,
+            -self.z
+        )
+    }
+
+    func __eq(self, other) {
+        return self.x == other.x &&
+               self.y == other.y &&
+               self.z == other.z
+    }
+
+    func __str(self) {
+        return "Vec3(" ..
+            convert:to_string(self.x) .. ", " ..
+            convert:to_string(self.y) .. ", " ..
+            convert:to_string(self.z) .. ")"
+    }
+
+    func dot(self, other) {
+        return self.x * other.x +
+               self.y * other.y +
+               self.z * other.z
+    }
+
+    func cross(self, other) {
+        return Vec3(
+            self.y * other.z - self.z * other.y,
+            self.z * other.x - self.x * other.z,
+            self.x * other.y - self.y * other.x
+        )
+    }
+
+    func length_squared(self) {
+        return self.dot(self)
+    }
+
+    func length(self) {
+        return math:sqrt(self.length_squared())
+    }
+
+    func normalized(self) {
+        var length = convert:to_f64(self.length())
+
+        if length == 0 {
+            return raise("Vec3 normalization error: zero vector cannot be normalized.")
+        }
+
+        return self / length
+    }
+
+    func distance_squared(self, other) {
+        var dx = other.x - self.x
+        var dy = other.y - self.y
+        var dz = other.z - self.z
+
+        return dx * dx + dy * dy + dz * dz
+    }
+
+    func distance(self, other) {
+        return math:sqrt(self.distance_squared(other))
+    }
+}
+
+
+type Vec4 {
+    var __type = Vec4
+
+    var x
+    var y
+    var z
+    var w
+
+    func __constructor(x, y, z, w) {
+        return Vec4:{
+            x = x,
+            y = y,
+            z = z,
+            w = w
+        }
+    }
+
+    func __add(self, other) {
+        return Vec4(
+            self.x + other.x,
+            self.y + other.y,
+            self.z + other.z,
+            self.w + other.w
+        )
+    }
+
+    func __sub(self, other) {
+        return Vec4(
+            self.x - other.x,
+            self.y - other.y,
+            self.z - other.z,
+            self.w - other.w
+        )
+    }
+
+    func __mul(self, scalar) {
+        return Vec4(
+            self.x * scalar,
+            self.y * scalar,
+            self.z * scalar,
+            self.w * scalar
+        )
+    }
+
+    func __div(self, scalar) {
+        var divisor = convert:to_f64(scalar)
+
+        if divisor == 0 {
+            return raise("Vec4 division error: division by zero.")
+        }
+
+        return Vec4(
+            convert:to_f64(self.x) / divisor,
+            convert:to_f64(self.y) / divisor,
+            convert:to_f64(self.z) / divisor,
+            convert:to_f64(self.w) / divisor
+        )
+    }
+
+    func __neg(self) {
+        return Vec4(
+            -self.x,
+            -self.y,
+            -self.z,
+            -self.w
+        )
+    }
+
+    func __eq(self, other) {
+        return self.x == other.x &&
+               self.y == other.y &&
+               self.z == other.z &&
+               self.w == other.w
+    }
+
+    func __str(self) {
+        return "Vec4(" ..
+            convert:to_string(self.x) .. ", " ..
+            convert:to_string(self.y) .. ", " ..
+            convert:to_string(self.z) .. ", " ..
+            convert:to_string(self.w) .. ")"
+    }
+
+    func dot(self, other) {
+        return self.x * other.x +
+               self.y * other.y +
+               self.z * other.z +
+               self.w * other.w
+    }
+
+    func length_squared(self) {
+        return self.dot(self)
+    }
+
+    func length(self) {
+        return math:sqrt(self.length_squared())
+    }
+
+    func normalized(self) {
+        var length = convert:to_f64(self.length())
+
+        if length == 0 {
+            return raise("Vec4 normalization error: zero vector cannot be normalized.")
+        }
+
+        return self / length
+    }
+
+    func distance_squared(self, other) {
+        var dx = other.x - self.x
+        var dy = other.y - self.y
+        var dz = other.z - self.z
+        var dw = other.w - self.w
+
+        return dx * dx +
+               dy * dy +
+               dz * dz +
+               dw * dw
+    }
+
+    func distance(self, other) {
+        return math:sqrt(self.distance_squared(other))
+    }
+}
+
+
+type Vector {
+    var __type = Vector
+    var __values = nil
+
+    func __constructor(values: [any]) {
+        var copied = []
+
+        for (var i = 0; i < values.len(); i = i + 1) {
+            copied.push(values[i])
+        }
+
+        return Vector:{
+            __values = copied
+        }
+    }
+
+    func __add(self, other) {
+        if self.dimension() != other.dimension() {
+            return raise("Vector addition error: vectors must have the same dimension.")
+        }
+
+        var values = []
+
+        for (var i = 0; i < self.dimension(); i = i + 1) {
+            values.push(self.__values[i] + other.__values[i])
+        }
+
+        return Vector(values)
+    }
+
+    func __sub(self, other) {
+        if self.dimension() != other.dimension() {
+            return raise("Vector subtraction error: vectors must have the same dimension.")
+        }
+
+        var values = []
+
+        for (var i = 0; i < self.dimension(); i = i + 1) {
+            values.push(self.__values[i] - other.__values[i])
+        }
+
+        return Vector(values)
+    }
+
+    func __mul(self, scalar) {
+        var values = []
+
+        for (var i = 0; i < self.dimension(); i = i + 1) {
+            values.push(self.__values[i] * scalar)
+        }
+
+        return Vector(values)
+    }
+
+    func __div(self, scalar) {
+        var divisor = convert:to_f64(scalar)
+
+        if divisor == 0 {
+            return raise("Vector division error: division by zero.")
+        }
+
+        var values = []
+
+        for (var i = 0; i < self.dimension(); i = i + 1) {
+            values.push(
+                convert:to_f64(self.__values[i]) / divisor
+            )
+        }
+
+        return Vector(values)
+    }
+
+    func __neg(self) {
+        var values = []
+
+        for (var i = 0; i < self.dimension(); i = i + 1) {
+            values.push(-self.__values[i])
+        }
+
+        return Vector(values)
+    }
+
+    func __eq(self, other) {
+        if self.dimension() != other.dimension() {
+            return false
+        }
+
+        for (var i = 0; i < self.dimension(); i = i + 1) {
+            if self.__values[i] != other.__values[i] {
+                return false
+            }
+        }
+
+        return true
+    }
+
+    func __str(self) {
+        var result = "Vector("
+
+        for (var i = 0; i < self.dimension(); i = i + 1) {
+            result = result .. convert:to_string(self.__values[i])
+
+            if i + 1 < self.dimension() {
+                result = result .. ", "
+            }
+        }
+
+        return result .. ")"
+    }
+
+    func dimension(self) {
+        return self.__values.len()
+    }
+
+    func at(self, index) {
+        return self.__values[index]
+    }
+
+    func values(self) {
+        var copied = []
+
+        for (var i = 0; i < self.dimension(); i = i + 1) {
+            copied.push(self.__values[i])
+        }
+
+        return copied
+    }
+
+    func dot(self, other) {
+        if self.dimension() != other.dimension() {
+            return raise("Vector dot product error: vectors must have the same dimension.")
+        }
+
+        var result = 0
+
+        for (var i = 0; i < self.dimension(); i = i + 1) {
+            result = result + self.__values[i] * other.__values[i]
+        }
+
+        return result
+    }
+
+    func length_squared(self) {
+        return self.dot(self)
+    }
+
+    func length(self) {
+        return math:sqrt(self.length_squared())
+    }
+
+    func norm(self) {
+        return self.length()
+    }
+
+    func normalized(self) {
+        var length = convert:to_f64(self.length())
+
+        if length == 0 {
+            return raise("Vector normalization error: zero vector cannot be normalized.")
+        }
+
+        return self / length
+    }
+
+    func distance_squared(self, other) {
+        return (self - other).length_squared()
+    }
+
+    func distance(self, other) {
+        return math:sqrt(self.distance_squared(other))
+    }
+
+    func is_zero(self) {
+        for (var i = 0; i < self.dimension(); i = i + 1) {
+            if !number_is_zero(self.__values[i]) {
+                return false
+            }
+        }
+
+        return true
+    }
+}
+
+
+type Polynomial {
+    var __type = Polynomial
+    var __coefficients = nil
+
+    func __constructor(coefficients: [any]) {
+        var copied = []
+
+        for (var i = 0; i < coefficients.len(); i = i + 1) {
+            copied.push(coefficients[i])
+        }
+
+        return Polynomial:{
+            __coefficients = copied
+        }
+    }
+
+    func __str(self) {
+        var result = "Polynomial["
+
+        for (var i = 0; i < self.__coefficients.len(); i = i + 1) {
+            result = result .. convert:to_string(self.__coefficients[i])
+
+            if i + 1 < self.__coefficients.len() {
+                result = result .. ", "
+            }
+        }
+
+        return result .. "]"
+    }
+
+    func degree(self) {
+        if self.__coefficients.len() == 0 {
+            return 0
+        }
+
+        return self.__coefficients.len() - 1
+    }
+
+    func coefficients(self) {
+        var copied = []
+
+        for (var i = 0; i < self.__coefficients.len(); i = i + 1) {
+            copied.push(self.__coefficients[i])
+        }
+
+        return copied
+    }
+
+    func evaluate(self, x) {
+        if self.__coefficients.len() == 0 {
+            return 0
+        }
+
+        var result = convert:to_f64(self.__coefficients[0])
+        var xv = convert:to_f64(x)
+
+        for (var i = 1; i < self.__coefficients.len(); i = i + 1) {
+            result = result * xv + convert:to_f64(self.__coefficients[i])
+        }
+
+        return result
+    }
+}
+
+
+type QRDecomposition {
+    var __type = QRDecomposition
+    var Q = nil
+    var R = nil
+
+    func __constructor(q, r) {
+        return QRDecomposition:{
+            Q = q,
+            R = r
+        }
+    }
+
+    func reconstruct(self) {
+        return self.Q * self.R
+    }
+}
+
+
+type Diagonalization {
+    var __type = Diagonalization
+    var P = nil
+    var D = nil
+    var P_inverse = nil
+
+    func __constructor(p, d, p_inverse) {
+        return Diagonalization:{
+            P = p,
+            D = d,
+            P_inverse = p_inverse
+        }
+    }
+
+    func reconstruct(self) {
+        return self.P * self.D * self.P_inverse
+    }
+}
+
+
+type Matrix {
+    var __type = Matrix
+    var __values = nil
+
+    func __constructor(values: [any]) {
+        if values.len() > 0 {
+            var cols = values[0].len()
+
+            for (var i = 1; i < values.len(); i = i + 1) {
+                if values[i].len() != cols {
+                    return raise("Matrix construction error: all rows must have the same length.")
+                }
+            }
+        }
+
+        var copied = []
+
+        for (var i = 0; i < values.len(); i = i + 1) {
+            var row = []
+
+            for (var j = 0; j < values[i].len(); j = j + 1) {
+                row.push(values[i][j])
+            }
+
+            copied.push(row)
+        }
+
+        return Matrix:{
+            __values = copied
+        }
+    }
+
+    func __add(self, other) {
+        if self.rows() != other.rows() || self.cols() != other.cols() {
+            return raise("Matrix addition error: matrices must have the same dimensions.")
+        }
+
+        var values = []
+
+        for (var i = 0; i < self.rows(); i = i + 1) {
+            var row = []
+
+            for (var j = 0; j < self.cols(); j = j + 1) {
+                row.push(self.__values[i][j] + other.__values[i][j])
+            }
+
+            values.push(row)
+        }
+
+        return Matrix(values)
+    }
+
+    func __sub(self, other) {
+        if self.rows() != other.rows() || self.cols() != other.cols() {
+            return raise("Matrix subtraction error: matrices must have the same dimensions.")
+        }
+
+        var values = []
+
+        for (var i = 0; i < self.rows(); i = i + 1) {
+            var row = []
+
+            for (var j = 0; j < self.cols(); j = j + 1) {
+                row.push(self.__values[i][j] - other.__values[i][j])
+            }
+
+            values.push(row)
+        }
+
+        return Matrix(values)
+    }
+
+    func __mul(self, other) {
+        if other impls int ||
+           other impls uint ||
+           other impls byte ||
+           other impls f32 ||
+           other impls f64 {
+            return self matrix_scalar_multiply other
+        }
+
+        if other.__type == Matrix {
+            return self matrix_multiply other
+        }
+
+        if other.__type == Vector {
+            return self matrix_vector_multiply other
+        }
+
+        if other.__type == Vec2 {
+            return self matrix_vec2_multiply other
+        }
+
+        if other.__type == Vec3 {
+            return self matrix_vec3_multiply other
+        }
+
+        if other.__type == Vec4 {
+            return self matrix_vec4_multiply other
+        }
+
+        return raise("Matrix multiplication error: unsupported right operand.")
+    }
+
+    func __div(self, scalar) {
+        var divisor = convert:to_f64(scalar)
+
+        if divisor == 0 {
+            return raise("Matrix division error: division by zero.")
+        }
+
+        var values = []
+
+        for (var i = 0; i < self.rows(); i = i + 1) {
+            var row = []
+
+            for (var j = 0; j < self.cols(); j = j + 1) {
+                row.push(
+                    convert:to_f64(self.__values[i][j]) / divisor
+                )
+            }
+
+            values.push(row)
+        }
+
+        return Matrix(values)
+    }
+
+    func __neg(self) {
+        var values = []
+
+        for (var i = 0; i < self.rows(); i = i + 1) {
+            var row = []
+
+            for (var j = 0; j < self.cols(); j = j + 1) {
+                row.push(-self.__values[i][j])
+            }
+
+            values.push(row)
+        }
+
+        return Matrix(values)
+    }
+
+    func __eq(self, other) {
+        if self.rows() != other.rows() || self.cols() != other.cols() {
+            return false
+        }
+
+        for (var i = 0; i < self.rows(); i = i + 1) {
+            for (var j = 0; j < self.cols(); j = j + 1) {
+                if self.__values[i][j] != other.__values[i][j] {
+                    return false
+                }
+            }
+        }
+
+        return true
+    }
+
+    func __str(self) {
+        var result = "Matrix[\n"
+
+        for (var i = 0; i < self.rows(); i = i + 1) {
+            result = result .. "    ["
+
+            for (var j = 0; j < self.cols(); j = j + 1) {
+                result = result .. convert:to_string(self.__values[i][j])
+
+                if j + 1 < self.cols() {
+                    result = result .. ", "
+                }
+            }
+
+            result = result .. "]\n"
+        }
+
+        return result .. "]"
+    }
+
+    func rows(self) {
+        return self.__values.len()
+    }
+
+    func cols(self) {
+        if self.rows() == 0 {
+            return 0
+        }
+
+        return self.__values[0].len()
+    }
+
+    func at(self, row, col) {
+        return self.__values[row][col]
+    }
+
+    func is_square(self) {
+        return self.rows() == self.cols()
+    }
+
+    func transpose(self) {
+        var values = []
+
+        for (var j = 0; j < self.cols(); j = j + 1) {
+            var row = []
+
+            for (var i = 0; i < self.rows(); i = i + 1) {
+                row.push(self.__values[i][j])
+            }
+
+            values.push(row)
+        }
+
+        return Matrix(values)
+    }
+
+    func trace(self) {
+        if !self.is_square() {
+            return raise("Matrix trace error: matrix must be square.")
+        }
+
+        var result = 0
+
+        for (var i = 0; i < self.rows(); i = i + 1) {
+            result = result + self.__values[i][i]
+        }
+
+        return result
+    }
+
+    func determinant(self) {
+        if !self.is_square() {
+            return raise("Matrix determinant error: matrix must be square.")
+        }
+
+        if self.rows() == 0 {
+            return 1
+        }
+
+        if self.rows() == 1 {
+            return self.__values[0][0]
+        }
+
+        if self.rows() == 2 {
+            return self.__values[0][0] * self.__values[1][1] -
+                   self.__values[0][1] * self.__values[1][0]
+        }
+
+        var result = 0
+
+        for (var col = 0; col < self.cols(); col = col + 1) {
+            var sign = 1
+
+            if col % 2 != 0 {
+                sign = -1
+            }
+
+            result = result +
+                     sign *
+                     self.__values[0][col] *
+                     self.minor(0, col).determinant()
+        }
+
+        return result
+    }
+
+    func minor(self, remove_row, remove_col) {
+        var values = []
+
+        for (var i = 0; i < self.rows(); i = i + 1) {
+            if i != remove_row {
+                var row = []
+
+                for (var j = 0; j < self.cols(); j = j + 1) {
+                    if j != remove_col {
+                        row.push(self.__values[i][j])
+                    }
+                }
+
+                values.push(row)
+            }
+        }
+
+        return Matrix(values)
+    }
+
+    func cofactor(self, row, col) {
+        var sign = 1
+
+        if (row + col) % 2 != 0 {
+            sign = -1
+        }
+
+        return sign * self.minor(row, col).determinant()
+    }
+
+    func cofactor_matrix(self) {
+        if !self.is_square() {
+            return raise("Matrix cofactor error: matrix must be square.")
+        }
+
+        var values = []
+
+        for (var i = 0; i < self.rows(); i = i + 1) {
+            var row = []
+
+            for (var j = 0; j < self.cols(); j = j + 1) {
+                row.push(self.cofactor(i, j))
+            }
+
+            values.push(row)
+        }
+
+        return Matrix(values)
+    }
+
+    func inverse(self) {
+        if !self.is_square() {
+            return raise("Matrix inverse error: matrix must be square.")
+        }
+
+        var det = self.determinant()
+
+        if number_is_zero(det) {
+            return raise("Matrix inverse error: matrix is singular.")
+        }
+
+        if self.rows() == 1 {
+            return Matrix([
+                [
+                    convert:to_f64(1) /
+                    convert:to_f64(self.__values[0][0])
+                ]
+            ])
+        }
+
+        var adjugate = self.cofactor_matrix().transpose()
+
+        return adjugate / det
+    }
+
+    func ref(self) {
+        return matrix_ref_epsilon(self, 0.0000000001)
+    }
+
+    func rref(self) {
+        return matrix_rref_epsilon(self, 0.0000000001)
+    }
+
+    func rank(self) {
+        return matrix_rank_epsilon(self, 0.0000000001)
+    }
+
+    func nullity(self) {
+        return self.cols() - self.rank()
+    }
+
+    func pivot_columns(self) {
+        return matrix_pivot_columns_epsilon(self, 0.0000000001)
+    }
+
+    func null_space(self) {
+        return matrix_null_space_epsilon(self, 0.0000000001)
+    }
+
+    func column_space(self) {
+        var pivots = self.pivot_columns()
+        var result = []
+
+        for (var p = 0; p < pivots.dimension(); p = p + 1) {
+            var col = pivots.at(p)
+            var values = []
+
+            for (var i = 0; i < self.rows(); i = i + 1) {
+                values.push(self.__values[i][col])
+            }
+
+            result.push(Vector(values))
+        }
+
+        return result
+    }
+
+    func solve(self, vector) {
+        if self.rows() != vector.dimension() {
+            return raise("Linear system error: vector dimension must equal matrix row count.")
+        }
+
+        var values = []
+
+        for (var i = 0; i < self.rows(); i = i + 1) {
+            var row = []
+
+            for (var j = 0; j < self.cols(); j = j + 1) {
+                row.push(self.__values[i][j])
+            }
+
+            row.push(vector.at(i))
+            values.push(row)
+        }
+
+        var reduced = Matrix(values).rref()
+        var last_col = self.cols()
+
+        for (var i = 0; i < reduced.rows(); i = i + 1) {
+            var all_zero = true
+
+            for (var j = 0; j < self.cols(); j = j + 1) {
+                if !number_is_zero(reduced.at(i, j)) {
+                    all_zero = false
+                }
+            }
+
+            if all_zero && !number_is_zero(reduced.at(i, last_col)) {
+                return raise("Linear system error: system is inconsistent.")
+            }
+        }
+
+        if self.rank() < self.cols() {
+            return raise("Linear system error: system does not have a unique solution.")
+        }
+
+        var solution = []
+
+        for (var i = 0; i < self.cols(); i = i + 1) {
+            solution.push(0.0)
+        }
+
+        for (var i = 0; i < reduced.rows(); i = i + 1) {
+            var pivot = -1
+
+            for (var j = 0; j < self.cols(); j = j + 1) {
+                if pivot == -1 && !number_is_zero(reduced.at(i, j)) {
+                    pivot = j
+                }
+            }
+
+            if pivot != -1 {
+                solution[pivot] = reduced.at(i, last_col)
+            }
+        }
+
+        return Vector(solution)
+    }
+
+    func is_symmetric(self) {
+        if !self.is_square() {
+            return false
+        }
+
+        for (var i = 0; i < self.rows(); i = i + 1) {
+            for (var j = 0; j < self.cols(); j = j + 1) {
+                if !scalar_close(
+                    self.__values[i][j],
+                    self.__values[j][i],
+                    0.0000000001
+                ) {
+                    return false
+                }
+            }
+        }
+
+        return true
+    }
+
+    func characteristic_polynomial(self) {
+        if !self.is_square() {
+            return raise("Characteristic polynomial error: matrix must be square.")
+        }
+
+        var n = self.rows()
+        var coefficients = [1.0]
+        var b = matrix_identity(n)
+
+        for (var k = 1; k <= n; k = k + 1) {
+            var ab = self * b
+            var coefficient = -convert:to_f64(ab.trace()) /
+                              convert:to_f64(k)
+
+            coefficients.push(coefficient)
+            b = ab + matrix_identity(n) * coefficient
+        }
+
+        return Polynomial(coefficients)
+    }
+
+    func qr(self) {
+        if self.rows() < self.cols() {
+            return raise("QR decomposition error: matrix must have at least as many rows as columns.")
+        }
+
+        var columns = matrix_columns(self)
+        var q_vectors = gram_schmidt(columns)
+
+        for (var axis = 0; axis < self.rows(); axis = axis + 1) {
+            if q_vectors.len() < self.cols() {
+                var values = []
+
+                for (var i = 0; i < self.rows(); i = i + 1) {
+                    if i == axis {
+                        values.push(1.0)
+                    } else {
+                        values.push(0.0)
+                    }
+                }
+
+                var current = Vector(values)
+
+                for (var j = 0; j < q_vectors.len(); j = j + 1) {
+                    current = current - projection(current, q_vectors[j])
+                }
+
+                if !number_is_zero(current.length()) {
+                    q_vectors.push(current.normalized())
+                }
+            }
+        }
+
+        if q_vectors.len() != self.cols() {
+            return raise("QR decomposition error: failed to build an orthonormal basis.")
+        }
+
+        var q = matrix_from_columns(q_vectors)
+        var r = q.transpose() * self
+
+        return QRDecomposition(q, r)
+    }
+
+    func eigenvalues(self) {
+        if !self.is_square() {
+            return raise("Eigenvalue error: matrix must be square.")
+        }
+
+        if self.rows() == 0 {
+            return Vector([])
+        }
+
+        if self.rows() == 1 {
+            return Vector([
+                convert:to_f64(self.__values[0][0])
+            ])
+        }
+
+        if self.rows() == 2 {
+            var trace = convert:to_f64(self.trace())
+            var det = convert:to_f64(self.determinant())
+            var discriminant = trace * trace - 4.0 * det
+
+            if discriminant < 0 {
+                return raise("Eigenvalue error: complex eigenvalues are not supported.")
+            }
+
+            var root = math:sqrt(discriminant)
+
+            return Vector([
+                (trace + root) / 2.0,
+                (trace - root) / 2.0
+            ])
+        }
+
+        var current = matrix_to_f64(self)
+
+        for (var iteration = 0; iteration < 80; iteration = iteration + 1) {
+            var decomposition = current.qr()
+            current = decomposition.R * decomposition.Q
+        }
+
+        var values = []
+
+        for (var i = 0; i < current.rows(); i = i + 1) {
+            values.push(current.at(i, i))
+        }
+
+        return Vector(values)
+    }
+
+    func eigenspace(self, eigenvalue) {
+        if !self.is_square() {
+            return raise("Eigenspace error: matrix must be square.")
+        }
+
+        var shifted = self - matrix_identity(self.rows()) * eigenvalue
+        var vectors = matrix_null_space_epsilon(shifted, 0.000001)
+
+        return Subspace(vectors)
+    }
+
+    func algebraic_multiplicity(self, eigenvalue) {
+        var values = self.eigenvalues()
+        var count = 0
+
+        for (var i = 0; i < values.dimension(); i = i + 1) {
+            if scalar_close(values.at(i), eigenvalue, 0.000001) {
+                count = count + 1
+            }
+        }
+
+        return count
+    }
+
+    func geometric_multiplicity(self, eigenvalue) {
+        return self.eigenspace(eigenvalue).dimension()
+    }
+
+    func eigenvectors(self) {
+        var values = self.eigenvalues().values()
+        var unique = numbers_unique(values, 0.000001)
+        var result = []
+
+        for (var i = 0; i < unique.len(); i = i + 1) {
+            var eigenspace = self.eigenspace(unique[i])
+            var vectors = eigenspace.basis()
+
+            for (var j = 0; j < vectors.len(); j = j + 1) {
+                result.push(vectors[j])
+            }
+        }
+
+        return result
+    }
+
+    func is_diagonalizable(self) {
+        if !self.is_square() {
+            return false
+        }
+
+        var values = self.eigenvalues().values()
+        var unique = numbers_unique(values, 0.000001)
+        var total = 0
+
+        for (var i = 0; i < unique.len(); i = i + 1) {
+            total = total + self.geometric_multiplicity(unique[i])
+        }
+
+        return total == self.rows()
+    }
+
+    func diagonalize(self) {
+        if !self.is_square() {
+            return raise("Diagonalization error: matrix must be square.")
+        }
+
+        var values = self.eigenvalues().values()
+        var unique = numbers_unique(values, 0.000001)
+        var eigenvectors = []
+        var diagonal_values = []
+
+        for (var i = 0; i < unique.len(); i = i + 1) {
+            var eigenspace = self.eigenspace(unique[i])
+            var vectors = eigenspace.basis()
+
+            for (var j = 0; j < vectors.len(); j = j + 1) {
+                eigenvectors.push(vectors[j])
+                diagonal_values.push(unique[i])
+            }
+        }
+
+        if eigenvectors.len() != self.rows() {
+            return raise("Diagonalization error: matrix is not diagonalizable.")
+        }
+
+        var p = matrix_from_columns(eigenvectors)
+        var d = matrix_diagonal(Vector(diagonal_values))
+
+        return Diagonalization(
+            p,
+            d,
+            p.inverse()
+        )
+    }
+}
+
+
+type Subspace {
+    var __type = Subspace
+    var __basis = nil
+
+    func __constructor(vectors: [any]) {
+        return Subspace:{
+            __basis = basis(vectors)
+        }
+    }
+
+    func __str(self) {
+        return "Subspace(dimension=" ..
+            convert:to_string(self.dimension()) .. ")"
+    }
+
+    func basis(self) {
+        var copied = []
+
+        for (var i = 0; i < self.__basis.len(); i = i + 1) {
+            copied.push(self.__basis[i])
+        }
+
+        return copied
+    }
+
+    func dimension(self) {
+        return self.__basis.len()
+    }
+
+    func contains(self, vector) {
+        return span_contains(self.__basis, vector)
+    }
+
+    func is_subspace_of(self, other) {
+        for (var i = 0; i < self.__basis.len(); i = i + 1) {
+            if !other.contains(self.__basis[i]) {
+                return false
+            }
+        }
+
+        return true
+    }
+}
+
+
+type LinearTransformation {
+    var __type = LinearTransformation
+    var __matrix = nil
+
+    func __constructor(matrix) {
+        return LinearTransformation:{
+            __matrix = matrix
+        }
+    }
+
+    func __self(self, vector) {
+        return self.__matrix * vector
+    }
+
+    func __str(self) {
+        return "LinearTransformation(\n" ..
+            convert:to_string(self.domain_dimension()) .. " -> " ..
+            convert:to_string(self.codomain_dimension()) ..
+            "\n)"
+    }
+
+    func matrix(self) {
+        return self.__matrix
+    }
+
+    func domain_dimension(self) {
+        return self.__matrix.cols()
+    }
+
+    func codomain_dimension(self) {
+        return self.__matrix.rows()
+    }
+
+    func kernel(self) {
+        return Subspace(self.__matrix.null_space())
+    }
+
+    func image(self) {
+        return Subspace(self.__matrix.column_space())
+    }
+
+    func rank(self) {
+        return self.__matrix.rank()
+    }
+
+    func nullity(self) {
+        return self.__matrix.nullity()
+    }
+
+    func is_injective(self) {
+        return self.nullity() == 0
+    }
+
+    func is_surjective(self) {
+        return self.rank() == self.codomain_dimension()
+    }
+
+    func is_isomorphism(self) {
+        return self.domain_dimension() == self.codomain_dimension() &&
+               self.is_injective() &&
+               self.is_surjective()
+    }
+
+    func compose(self, other) {
+        if other.codomain_dimension() != self.domain_dimension() {
+            return raise("Linear transformation composition error: incompatible dimensions.")
+        }
+
+        return LinearTransformation(
+            self.__matrix * other.__matrix
+        )
+    }
+
+    func representation(self, domain_basis, codomain_basis) {
+        var domain_matrix = matrix_from_columns(domain_basis)
+        var codomain_matrix = matrix_from_columns(codomain_basis)
+
+        return codomain_matrix.inverse() *
+               self.__matrix *
+               domain_matrix
+    }
+
+    func is_operator(self) {
+        return self.domain_dimension() == self.codomain_dimension()
+    }
+
+    func characteristic_polynomial(self) {
+        if !self.is_operator() {
+            return raise("Linear operator error: characteristic polynomial requires an endomorphism.")
+        }
+
+        return self.__matrix.characteristic_polynomial()
+    }
+
+    func eigenvalues(self) {
+        if !self.is_operator() {
+            return raise("Linear operator error: eigenvalues require an endomorphism.")
+        }
+
+        return self.__matrix.eigenvalues()
+    }
+
+    func eigenvectors(self) {
+        if !self.is_operator() {
+            return raise("Linear operator error: eigenvectors require an endomorphism.")
+        }
+
+        return self.__matrix.eigenvectors()
+    }
+
+    func eigenspace(self, eigenvalue) {
+        if !self.is_operator() {
+            return raise("Linear operator error: eigenspaces require an endomorphism.")
+        }
+
+        return self.__matrix.eigenspace(eigenvalue)
+    }
+
+    func is_diagonalizable(self) {
+        if !self.is_operator() {
+            return false
+        }
+
+        return self.__matrix.is_diagonalizable()
+    }
+
+    func diagonalize(self) {
+        if !self.is_operator() {
+            return raise("Linear operator error: diagonalization requires an endomorphism.")
+        }
+
+        return self.__matrix.diagonalize()
+    }
+}
+
+
+func vector_zeros(size) {
+    var values = []
+
+    for (var i = 0; i < size; i = i + 1) {
+        values.push(0)
+    }
+
+    return Vector(values)
+}
+
+func matrix_zeros(rows, cols) {
+    var values = []
+
+    for (var i = 0; i < rows; i = i + 1) {
+        var row = []
+
+        for (var j = 0; j < cols; j = j + 1) {
+            row.push(0)
+        }
+
+        values.push(row)
+    }
+
+    return Matrix(values)
+}
+
+func matrix_identity(size) {
+    var values = []
+
+    for (var i = 0; i < size; i = i + 1) {
+        var row = []
+
+        for (var j = 0; j < size; j = j + 1) {
+            if i == j {
+                row.push(1)
+            } else {
+                row.push(0)
+            }
+        }
+
+        values.push(row)
+    }
+
+    return Matrix(values)
+}
+
+func matrix_diagonal(vector) {
+    var values = []
+
+    for (var i = 0; i < vector.dimension(); i = i + 1) {
+        var row = []
+
+        for (var j = 0; j < vector.dimension(); j = j + 1) {
+            if i == j {
+                row.push(vector.at(i))
+            } else {
+                row.push(0)
+            }
+        }
+
+        values.push(row)
+    }
+
+    return Matrix(values)
+}
+
+func matrix_to_f64(matrix) {
+    var values = []
+
+    for (var i = 0; i < matrix.rows(); i = i + 1) {
+        var row = []
+
+        for (var j = 0; j < matrix.cols(); j = j + 1) {
+            row.push(convert:to_f64(matrix.at(i, j)))
+        }
+
+        values.push(row)
+    }
+
+    return Matrix(values)
+}
+
+func matrix_columns(matrix) {
+    var result = []
+
+    for (var j = 0; j < matrix.cols(); j = j + 1) {
+        var values = []
+
+        for (var i = 0; i < matrix.rows(); i = i + 1) {
+            values.push(matrix.at(i, j))
+        }
+
+        result.push(Vector(values))
+    }
+
+    return result
+}
+
+func matrix_from_columns(vectors: [any]) {
+    if vectors.len() == 0 {
+        return Matrix([])
+    }
+
+    var rows = vectors[0].dimension()
+
+    for (var i = 1; i < vectors.len(); i = i + 1) {
+        if vectors[i].dimension() != rows {
+            return raise("Matrix from columns error: all vectors must have the same dimension.")
+        }
+    }
+
+    var values = []
+
+    for (var i = 0; i < rows; i = i + 1) {
+        var row = []
+
+        for (var j = 0; j < vectors.len(); j = j + 1) {
+            row.push(vectors[j].at(i))
+        }
+
+        values.push(row)
+    }
+
+    return Matrix(values)
+}
+
+func matrix_ref_epsilon(matrix, epsilon) {
+    var values = matrix_to_f64(matrix).__values
+    var rows = matrix.rows()
+    var cols = matrix.cols()
+    var pivot_row = 0
+
+    for (var col = 0; col < cols; col = col + 1) {
+        if pivot_row < rows {
+            var pivot = -1
+
+            for (var i = pivot_row; i < rows; i = i + 1) {
+                if pivot == -1 && !number_is_zero_epsilon(values[i][col], epsilon) {
+                    pivot = i
+                }
+            }
+
+            if pivot != -1 {
+                if pivot != pivot_row {
+                    var temp = values[pivot_row]
+                    values[pivot_row] = values[pivot]
+                    values[pivot] = temp
+                }
+
+                var pivot_value = convert:to_f64(values[pivot_row][col])
+
+                for (var j = col; j < cols; j = j + 1) {
+                    values[pivot_row][j] =
+                        convert:to_f64(values[pivot_row][j]) / pivot_value
+                }
+
+                for (var i = pivot_row + 1; i < rows; i = i + 1) {
+                    var factor = convert:to_f64(values[i][col])
+
+                    if !number_is_zero_epsilon(factor, epsilon) {
+                        for (var j = col; j < cols; j = j + 1) {
+                            values[i][j] =
+                                convert:to_f64(values[i][j]) -
+                                factor * convert:to_f64(values[pivot_row][j])
+
+                            if number_is_zero_epsilon(values[i][j], epsilon) {
+                                values[i][j] = 0.0
+                            }
+                        }
+                    }
+                }
+
+                pivot_row = pivot_row + 1
+            }
+        }
+    }
+
+    return Matrix(values)
+}
+
+func matrix_rref_epsilon(matrix, epsilon) {
+    var values = matrix_to_f64(matrix).__values
+    var rows = matrix.rows()
+    var cols = matrix.cols()
+    var pivot_row = 0
+
+    for (var col = 0; col < cols; col = col + 1) {
+        if pivot_row < rows {
+            var pivot = -1
+
+            for (var i = pivot_row; i < rows; i = i + 1) {
+                if pivot == -1 && !number_is_zero_epsilon(values[i][col], epsilon) {
+                    pivot = i
+                }
+            }
+
+            if pivot != -1 {
+                if pivot != pivot_row {
+                    var temp = values[pivot_row]
+                    values[pivot_row] = values[pivot]
+                    values[pivot] = temp
+                }
+
+                var pivot_value = convert:to_f64(values[pivot_row][col])
+
+                for (var j = 0; j < cols; j = j + 1) {
+                    values[pivot_row][j] =
+                        convert:to_f64(values[pivot_row][j]) / pivot_value
+
+                    if number_is_zero_epsilon(values[pivot_row][j], epsilon) {
+                        values[pivot_row][j] = 0.0
+                    }
+                }
+
+                for (var i = 0; i < rows; i = i + 1) {
+                    if i != pivot_row {
+                        var factor = convert:to_f64(values[i][col])
+
+                        if !number_is_zero_epsilon(factor, epsilon) {
+                            for (var j = 0; j < cols; j = j + 1) {
+                                values[i][j] =
+                                    convert:to_f64(values[i][j]) -
+                                    factor * convert:to_f64(values[pivot_row][j])
+
+                                if number_is_zero_epsilon(values[i][j], epsilon) {
+                                    values[i][j] = 0.0
+                                }
+                            }
+                        }
+                    }
+                }
+
+                pivot_row = pivot_row + 1
+            }
+        }
+    }
+
+    return Matrix(values)
+}
+
+func matrix_rank_epsilon(matrix, epsilon) {
+    var reduced = matrix_rref_epsilon(matrix, epsilon)
+    var rank = 0
+
+    for (var i = 0; i < reduced.rows(); i = i + 1) {
+        var nonzero = false
+
+        for (var j = 0; j < reduced.cols(); j = j + 1) {
+            if !number_is_zero_epsilon(reduced.at(i, j), epsilon) {
+                nonzero = true
+            }
+        }
+
+        if nonzero {
+            rank = rank + 1
+        }
+    }
+
+    return rank
+}
+
+func matrix_pivot_columns_epsilon(matrix, epsilon) {
+    var reduced = matrix_rref_epsilon(matrix, epsilon)
+    var pivots = []
+
+    for (var i = 0; i < reduced.rows(); i = i + 1) {
+        var pivot = -1
+
+        for (var j = 0; j < reduced.cols(); j = j + 1) {
+            if pivot == -1 && !number_is_zero_epsilon(reduced.at(i, j), epsilon) {
+                pivot = j
+            }
+        }
+
+        if pivot != -1 {
+            pivots.push(pivot)
+        }
+    }
+
+    return Vector(pivots)
+}
+
+func vector_contains_value(vector, value) {
+    for (var i = 0; i < vector.dimension(); i = i + 1) {
+        if vector.at(i) == value {
+            return true
+        }
+    }
+
+    return false
+}
+
+func matrix_null_space_epsilon(matrix, epsilon) {
+    var reduced = matrix_rref_epsilon(matrix, epsilon)
+    var pivots = matrix_pivot_columns_epsilon(matrix, epsilon)
+    var result = []
+
+    for (var free_col = 0; free_col < matrix.cols(); free_col = free_col + 1) {
+        if !vector_contains_value(pivots, free_col) {
+            var values = []
+
+            for (var j = 0; j < matrix.cols(); j = j + 1) {
+                values.push(0.0)
+            }
+
+            values[free_col] = 1.0
+
+            for (var row = 0; row < reduced.rows(); row = row + 1) {
+                var pivot = -1
+
+                for (var col = 0; col < matrix.cols(); col = col + 1) {
+                    if pivot == -1 && !number_is_zero_epsilon(reduced.at(row, col), epsilon) {
+                        pivot = col
+                    }
+                }
+
+                if pivot != -1 {
+                    values[pivot] = -convert:to_f64(reduced.at(row, free_col))
+                }
+            }
+
+            result.push(Vector(values))
+        }
+    }
+
+    return result
+}
+
+func linear_combination(vectors: [any], scalars: [any]) {
+    if vectors.len() != scalars.len() {
+        return raise("Linear combination error: vector and scalar counts must match.")
+    }
+
+    if vectors.len() == 0 {
+        return Vector([])
+    }
+
+    var dimension = vectors[0].dimension()
+    var result = vector_zeros(dimension)
+
+    for (var i = 0; i < vectors.len(); i = i + 1) {
+        if vectors[i].dimension() != dimension {
+            return raise("Linear combination error: all vectors must have the same dimension.")
+        }
+
+        result = result + vectors[i] * scalars[i]
+    }
+
+    return result
+}
+
+func is_linearly_independent(vectors: [any]) {
+    if vectors.len() == 0 {
+        return true
+    }
+
+    return matrix_from_columns(vectors).rank() == vectors.len()
+}
+
+func is_linearly_dependent(vectors: [any]) {
+    return !is_linearly_independent(vectors)
+}
+
+func span_contains(vectors: [any], vector) {
+    if vectors.len() == 0 {
+        return vector.is_zero()
+    }
+
+    var original = matrix_from_columns(vectors)
+    var extended_vectors = []
+
+    for (var i = 0; i < vectors.len(); i = i + 1) {
+        extended_vectors.push(vectors[i])
+    }
+
+    extended_vectors.push(vector)
+
+    var extended = matrix_from_columns(extended_vectors)
+
+    return original.rank() == extended.rank()
+}
+
+func basis(vectors: [any]) {
+    if vectors.len() == 0 {
+        return []
+    }
+
+    var matrix = matrix_from_columns(vectors)
+    var pivots = matrix.pivot_columns()
+    var result = []
+
+    for (var i = 0; i < pivots.dimension(); i = i + 1) {
+        result.push(vectors[pivots.at(i)])
+    }
+
+    return result
+}
+
+func dimension(vectors: [any]) {
+    if vectors.len() == 0 {
+        return 0
+    }
+
+    return matrix_from_columns(vectors).rank()
+}
+
+func coordinates(vector, basis_vectors: [any]) {
+    if basis_vectors.len() == 0 {
+        return raise("Coordinates error: basis cannot be empty.")
+    }
+
+    if !is_linearly_independent(basis_vectors) {
+        return raise("Coordinates error: supplied vectors are not linearly independent.")
+    }
+
+    if !span_contains(basis_vectors, vector) {
+        return raise("Coordinates error: vector is not in the span of the basis.")
+    }
+
+    return matrix_from_columns(basis_vectors).solve(vector)
+}
+
+func change_basis_matrix(from_basis: [any], to_basis: [any]) {
+    if from_basis.len() != to_basis.len() {
+        return raise("Change of basis error: bases must have the same number of vectors.")
+    }
+
+    var columns = []
+
+    for (var i = 0; i < from_basis.len(); i = i + 1) {
+        columns.push(
+            coordinates(from_basis[i], to_basis)
+        )
+    }
+
+    return matrix_from_columns(columns)
+}
+
+func inner_product(left, right) {
+    return left.dot(right)
+}
+
+func are_orthogonal(left, right) {
+    return number_is_zero(inner_product(left, right))
+}
+
+func projection(vector, onto) {
+    var denominator = convert:to_f64(onto.dot(onto))
+
+    if denominator == 0 {
+        return raise("Projection error: cannot project onto the zero vector.")
+    }
+
+    var coefficient = convert:to_f64(vector.dot(onto)) / denominator
+
+    return onto * coefficient
+}
+
+func gram_schmidt(vectors: [any]) {
+    var result = []
+
+    for (var i = 0; i < vectors.len(); i = i + 1) {
+        var current = vectors[i]
+
+        for (var j = 0; j < result.len(); j = j + 1) {
+            current = current - projection(current, result[j])
+        }
+
+        if !number_is_zero(current.length()) {
+            result.push(current.normalized())
+        }
+    }
+
+    return result
+}
+
+func is_orthogonal_set(vectors: [any]) {
+    for (var i = 0; i < vectors.len(); i = i + 1) {
+        for (var j = i + 1; j < vectors.len(); j = j + 1) {
+            if !are_orthogonal(vectors[i], vectors[j]) {
+                return false
+            }
+        }
+    }
+
+    return true
+}
+
+func is_orthonormal_set(vectors: [any]) {
+    if !is_orthogonal_set(vectors) {
+        return false
+    }
+
+    for (var i = 0; i < vectors.len(); i = i + 1) {
+        if !scalar_close(vectors[i].length(), 1.0, 0.000001) {
+            return false
+        }
+    }
+
+    return true
+}
+
+func orthonormal_basis(vectors: [any]) {
+    return gram_schmidt(basis(vectors))
+}
+
+func projection_onto_subspace(vector, basis_vectors: [any]) {
+    var orthonormal = orthonormal_basis(basis_vectors)
+    var result = vector_zeros(vector.dimension())
+
+    for (var i = 0; i < orthonormal.len(); i = i + 1) {
+        result = result + projection(vector, orthonormal[i])
+    }
+
+    return result
+}
+
+func linear_transformation_from_images(domain_basis: [any], images: [any]) {
+    if domain_basis.len() != images.len() {
+        return raise("Linear transformation construction error: basis and image counts must match.")
+    }
+
+    if !is_linearly_independent(domain_basis) {
+        return raise("Linear transformation construction error: domain vectors must form a basis.")
+    }
+
+    var domain_matrix = matrix_from_columns(domain_basis)
+    var image_matrix = matrix_from_columns(images)
+
+    return LinearTransformation(
+        image_matrix * domain_matrix.inverse()
+    )
+}
+
+
+oper matrix_multiply(ml, mr) {
+    if ml.cols() != mr.rows() {
+        return raise(
+            "Matrix multiplication error: number of columns in the left matrix must equal the number of rows in the right matrix."
+        )
+    }
+
+    var values = []
+
+    for (var i = 0; i < ml.rows(); i = i + 1) {
+        var row = []
+
+        for (var j = 0; j < mr.cols(); j = j + 1) {
+            var value = 0
+
+            for (var k = 0; k < ml.cols(); k = k + 1) {
+                value = value +
+                    ml.__values[i][k] *
+                    mr.__values[k][j]
+            }
+
+            row.push(value)
+        }
+
+        values.push(row)
+    }
+
+    return Matrix(values)
+}
+
+oper matrix_scalar_multiply(matrix, scalar) {
+    var values = []
+
+    for (var i = 0; i < matrix.rows(); i = i + 1) {
+        var row = []
+
+        for (var j = 0; j < matrix.cols(); j = j + 1) {
+            row.push(matrix.__values[i][j] * scalar)
+        }
+
+        values.push(row)
+    }
+
+    return Matrix(values)
+}
+
+oper scalar_matrix_multiply(scalar, matrix) {
+    return matrix matrix_scalar_multiply scalar
+}
+
+oper matrix_vector_multiply(matrix, vector) {
+    if matrix.cols() != vector.dimension() {
+        return raise(
+            "Matrix Vector multiplication error: matrix column count must equal vector dimension."
+        )
+    }
+
+    var values = []
+
+    for (var i = 0; i < matrix.rows(); i = i + 1) {
+        var value = 0
+
+        for (var j = 0; j < matrix.cols(); j = j + 1) {
+            value = value + matrix.__values[i][j] * vector.at(j)
+        }
+
+        values.push(value)
+    }
+
+    return Vector(values)
+}
+
+oper matrix_vec2_multiply(matrix, vector) {
+    if matrix.cols() != 2 || matrix.rows() != 2 {
+        return raise(
+            "Matrix Vec2 multiplication error: matrix must be 2x2."
+        )
+    }
+
+    return Vec2(
+        matrix.__values[0][0] * vector.x +
+        matrix.__values[0][1] * vector.y,
+
+        matrix.__values[1][0] * vector.x +
+        matrix.__values[1][1] * vector.y
+    )
+}
+
+oper matrix_vec3_multiply(matrix, vector) {
+    if matrix.cols() != 3 || matrix.rows() != 3 {
+        return raise(
+            "Matrix Vec3 multiplication error: matrix must be 3x3."
+        )
+    }
+
+    return Vec3(
+        matrix.__values[0][0] * vector.x +
+        matrix.__values[0][1] * vector.y +
+        matrix.__values[0][2] * vector.z,
+
+        matrix.__values[1][0] * vector.x +
+        matrix.__values[1][1] * vector.y +
+        matrix.__values[1][2] * vector.z,
+
+        matrix.__values[2][0] * vector.x +
+        matrix.__values[2][1] * vector.y +
+        matrix.__values[2][2] * vector.z
+    )
+}
+
+oper matrix_vec4_multiply(matrix, vector) {
+    if matrix.cols() != 4 || matrix.rows() != 4 {
+        return raise(
+            "Matrix Vec4 multiplication error: matrix must be 4x4."
+        )
+    }
+
+    return Vec4(
+        matrix.__values[0][0] * vector.x +
+        matrix.__values[0][1] * vector.y +
+        matrix.__values[0][2] * vector.z +
+        matrix.__values[0][3] * vector.w,
+
+        matrix.__values[1][0] * vector.x +
+        matrix.__values[1][1] * vector.y +
+        matrix.__values[1][2] * vector.z +
+        matrix.__values[1][3] * vector.w,
+
+        matrix.__values[2][0] * vector.x +
+        matrix.__values[2][1] * vector.y +
+        matrix.__values[2][2] * vector.z +
+        matrix.__values[2][3] * vector.w,
+
+        matrix.__values[3][0] * vector.x +
+        matrix.__values[3][1] * vector.y +
+        matrix.__values[3][2] * vector.z +
+        matrix.__values[3][3] * vector.w
+    )
+}
