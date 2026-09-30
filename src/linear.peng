@@ -752,31 +752,31 @@ type Matrix {
     }
 
     func __mul(self, other) {
-        if other impls int ||
-           other impls uint ||
-           other impls byte ||
-           other impls f32 ||
-           other impls f64 {
+        if other is type int ||
+           other is type uint ||
+           other is type byte ||
+           other is type f32 ||
+           other is type f64 {
             return self matrix_scalar_multiply other
         }
 
-        if other.__type == Matrix {
+        if other is type Matrix {
             return self matrix_multiply other
         }
 
-        if other.__type == Vector {
+        if other is type Vector {
             return self matrix_vector_multiply other
         }
 
-        if other.__type == Vec2 {
+        if other is type Vec2 {
             return self matrix_vec2_multiply other
         }
 
-        if other.__type == Vec3 {
+        if other is type Vec3 {
             return self matrix_vec3_multiply other
         }
 
-        if other.__type == Vec4 {
+        if other is type Vec4 {
             return self matrix_vec4_multiply other
         }
 
